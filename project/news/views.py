@@ -7,6 +7,13 @@ from news.forms import ArticleForm
 from .models import Article
 from .filters import NewsFilter
 from django.urls import reverse_lazy
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import TemplateView
+from django.contrib.auth.mixins import PermissionRequiredMixin
+
+    
+class ProtectedView(LoginRequiredMixin, TemplateView):
+    template_name = 'prodected_page.html'
 
 
 class ArticleList(ListView):
@@ -48,21 +55,23 @@ class ArticleDetail(DetailView):
     # Название объекта, в котором будет выбранная пользователем новость
     context_object_name = 'article'
     
-class ArticleCreate(CreateView):
+class ArticleCreate(PermissionRequiredMixin, CreateView):
     # Указываем нашу разработанную форму
     form_class = ArticleForm
     model = Article
     # и новый шаблон, в котором используется форма.
     template_name = 'article_edit.html'
+    permission_required = ('news.add_article')
     
     def form_valid(self, form):
             article = form.save(commit=False)
             return super().form_valid(form)
     
-class ArticleUpdate(UpdateView):
+class ArticleUpdate(PermissionRequiredMixin, UpdateView):
     form_class = ArticleForm
     model = Article
     template_name = 'article_edit.html'
+    permission_required = ('news.edit_article')
     
 class ArticleDelete(DeleteView):
     model = Article
