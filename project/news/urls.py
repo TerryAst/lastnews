@@ -1,6 +1,6 @@
 from django.urls import path
 # Импортируем созданное нами представление
-from .views import ArticleList, ArticleDetail, ArticleDetail, ArticleCreate, ArticleUpdate, ArticleDelete
+from .views import ArticleList, ArticleDetail, ArticleDetail, ArticleCreate, ArticleUpdate, ArticleDelete, podpiska
 
 
 urlpatterns = [
@@ -9,4 +9,5 @@ urlpatterns = [
    path('create/', ArticleCreate.as_view(), name='article_create'),
    path('<int:pk>/edit/', ArticleUpdate.as_view(), name='article_update'),
    path('<int:pk>/delete/', ArticleDelete.as_view(), name='article_delete'),
+   path('podpiska/', podpiska, name = 'podpiska')
 ]

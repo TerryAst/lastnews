@@ -4,13 +4,16 @@ from django.views.generic import (
     ListView, DetailView, CreateView, UpdateView, DeleteView
 )
 from news.forms import ArticleForm
-from .models import Article
+from .models import Article, Category
 from .filters import NewsFilter
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import PermissionRequiredMixin
-
+from django.core.mail import send_mail
+from django.shortcuts import redirect
+from django.contrib.auth.models import Group
+from django.contrib.auth.decorators import login_required
     
 class ProtectedView(LoginRequiredMixin, TemplateView):
     template_name = 'prodected_page.html'
@@ -65,7 +68,17 @@ class ArticleCreate(PermissionRequiredMixin, CreateView):
     
     def form_valid(self, form):
             article = form.save(commit=False)
+            category = Category.objects.get(name='news')
+         # отправляем письмо
+            send_mail( 
+                subject=f'Новая новость на сайте',  
+                message=form.description,  
+                from_email='newsportal22@yandex.com', 
+                recipient_list=category.subscribers,
+            )
             return super().form_valid(form)
+    
+   
     
 class ArticleUpdate(PermissionRequiredMixin, UpdateView):
     form_class = ArticleForm
@@ -77,3 +90,10 @@ class ArticleDelete(DeleteView):
     model = Article
     template_name = 'article_delete.html'
     success_url = reverse_lazy('article_list')
+    
+@login_required
+def podpiska(request):
+    userName = request.user
+    category = Category.objects.get(name='news')
+    category.subscribers.add(userName)
+    return redirect('/')
